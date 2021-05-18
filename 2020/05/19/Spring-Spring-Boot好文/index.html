@@ -1,0 +1,842 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="Spring Boot,Spring,">
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0">
+
+
+
+
+
+
+<meta name="description" content="Spring Spring中的循环依赖原理（转） @Async的使用、原理及使用时可能导致的问题（转） Spring Validation最佳实践及其实现原理（转） 自定义注解！绝对是程序员装逼的利器（转）  Spring Boot 这么写参数校验(validator)就不会被劝退了~（转） - 源 SpringBoot 中优雅处理参数验证（转） - 源 SpringBoot 多种读取配置文件中参">
+<meta name="keywords" content="Spring Boot,Spring">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring-Spring-Boot好文">
+<meta property="og:url" content="https://chace0120.github.io/2020/05/19/Spring-Spring-Boot好文/index.html">
+<meta property="og:site_name" content="chace&#39;s blogs">
+<meta property="og:description" content="Spring Spring中的循环依赖原理（转） @Async的使用、原理及使用时可能导致的问题（转） Spring Validation最佳实践及其实现原理（转） 自定义注解！绝对是程序员装逼的利器（转）  Spring Boot 这么写参数校验(validator)就不会被劝退了~（转） - 源 SpringBoot 中优雅处理参数验证（转） - 源 SpringBoot 多种读取配置文件中参">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2021-04-01T00:25:10.851Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spring-Spring-Boot好文">
+<meta name="twitter:description" content="Spring Spring中的循环依赖原理（转） @Async的使用、原理及使用时可能导致的问题（转） Spring Validation最佳实践及其实现原理（转） 自定义注解！绝对是程序员装逼的利器（转）  Spring Boot 这么写参数校验(validator)就不会被劝退了~（转） - 源 SpringBoot 中优雅处理参数验证（转） - 源 SpringBoot 多种读取配置文件中参">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"right","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://chace0120.github.io/2020/05/19/Spring-Spring-Boot好文/">
+
+
+
+
+
+  <title> Spring-Spring-Boot好文 | chace's blogs </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?de9626072cacc18e044754e40624cb5f";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">chace's blogs</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">nice to meet you</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://chace0120.github.io/2020/05/19/Spring-Spring-Boot好文/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="chace">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/xhr.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="chace's blogs">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Spring-Spring-Boot好文
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-05-19T15:31:47+08:00">
+                2020-05-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/收藏/" itemprop="url" rel="index">
+                    <span itemprop="name">收藏</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2020/05/19/Spring-Spring-Boot好文/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/05/19/Spring-Spring-Boot好文/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Spring"><a href="#Spring" class="headerlink" title="Spring"></a>Spring</h1><ul>
+<li><a href="https://mp.weixin.qq.com/s/0EwkxNTFs6oW3Sl0P9sFXg" target="_blank" rel="noopener">Spring中的循环依赖原理（转）</a></li>
+<li><a href="https://mp.weixin.qq.com/s/wH2ehjwZXEfYWqcokPtlVA" target="_blank" rel="noopener">@Async的使用、原理及使用时可能导致的问题（转）</a></li>
+<li><a href="https://mp.weixin.qq.com/s/bmVvqhzWmK2hA2gurYB4wg" target="_blank" rel="noopener">Spring Validation最佳实践及其实现原理（转）</a></li>
+<li><a href="https://mp.weixin.qq.com/s/JDLr0a7znKmpFIKIHIWz-A" target="_blank" rel="noopener">自定义注解！绝对是程序员装逼的利器（转）</a></li>
+</ul>
+<h1 id="Spring-Boot"><a href="#Spring-Boot" class="headerlink" title="Spring Boot"></a>Spring Boot</h1><ul>
+<li><a href="https://mp.weixin.qq.com/s/m-uPVQhYsRYbCQ0J9bZsmA" target="_blank" rel="noopener">这么写参数校验(validator)就不会被劝退了~（转）</a> - <a href="https://juejin.im/post/5d3fbeb46fb9a06b317b3c48" target="_blank" rel="noopener">源</a></li>
+<li><a href="https://mp.weixin.qq.com/s/70E6rYSSsZW6HxK9Ks8Kug" target="_blank" rel="noopener">SpringBoot 中优雅处理参数验证（转）</a> - <a href="http://www.mydlq.club/article/49/" target="_blank" rel="noopener">源</a></li>
+<li><a href="https://view.inews.qq.com/w/WXN20200217005641020?refer=nwx&amp;bat_id=1112086514&amp;cur_pos=0&amp;activeapp=weishi&amp;grp_type=region&amp;rg=4&amp;newsGid=20200217_r2415930&amp;grp_index=2&amp;grp_id=1312086520&amp;rate=2&amp;pushid=2020021703&amp;bkt=0&amp;openid=o04IBAOWlitCRnRyS34AtXqrSRjk&amp;tbkt=H&amp;ft=71&amp;groupid=1581984077&amp;msgid=0" target="_blank" rel="noopener">SpringBoot 多种读取配置文件中参数的方式（转）</a></li>
+<li><a href="https://mp.weixin.qq.com/s/ESfKk7WSFfVLmLIFGFhGCw" target="_blank" rel="noopener">SpringBoot使用Redis实现数据缓存(上)（转）</a></li>
+<li><a href="https://mp.weixin.qq.com/s/8IktJAHrWQ3WSx2risrEGg" target="_blank" rel="noopener">SpringBoot使用Redis实现数据缓存(下)（转）</a></li>
+<li><a href="https://juejin.im/post/5ebf503ae51d4534287a65bd" target="_blank" rel="noopener">Spring Boot + Jasypt 实现敏感配置属性加密（原）</a></li>
+<li><a href="https://mp.weixin.qq.com/s/YZgA1YpWFDzkMKBAII-hDg" target="_blank" rel="noopener">SpringBoot应用+Docker+Jenkins实现自动化部署（转）</a></li>
+<li><a href="https://blog.csdn.net/zyhlwzy/article/details/90721481" target="_blank" rel="noopener">Spring Boot整合Redis实现简单的分布式锁（转）</a></li>
+<li><a href="https://ningyu1.github.io/site/post/62-ant-path-matcher/" target="_blank" rel="noopener">RESTful访问权限管理实现思路，AntPathMatcher（转）</a></li>
+<li><a href="https://www.95id.com/the-permission-design-baseon-rbac-restful.html" target="_blank" rel="noopener">基于RBAC的Rest抽象资源权限控制设计及实现（转）</a></li>
+<li><a href="https://www.cnblogs.com/liukemng/p/3751338.html" target="_blank" rel="noopener">实现注解式权限验证（转）</a></li>
+<li><a href="https://mp.weixin.qq.com/s/O_j1AYsYb1S9iYGndl0Aqw" target="_blank" rel="noopener">Spring Boot 项目瘦身指南（转）</a></li>
+<li><a href="https://blog.csdn.net/isea533/article/details/80922305?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522159382373719724835807092%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fblog.%2522%257D&amp;request_id=159382373719724835807092&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2~blog~first_rank_v2~rank_blog_v1-1-80922305.pc_v2_rank_blog_v1&amp;utm_term=%E6%89%B9%E9%87%8F" target="_blank" rel="noopener">MyBatis批量提交（转）</a></li>
+<li><a href="https://mp.weixin.qq.com/s/Jo3PZoa7nL99c8UCxPiTTA" target="_blank" rel="noopener">贼好用的JWT库（转）</a></li>
+<li><a href="https://mp.weixin.qq.com/s/RsLGbUwPcF96ea-p8FU8xA" target="_blank" rel="noopener">Spring Boot 2.3 优雅关闭新姿势（转）</a></li>
+<li><a href="https://mp.weixin.qq.com/s/Gzt3-Boi86xFJpmOodo62g" target="_blank" rel="noopener">5 个能挣钱的 SpringBoot 项目（转）</a></li>
+<li><a href="https://mp.weixin.qq.com/s/dA_7mQe98doCk-XkZMlJ5g" target="_blank" rel="noopener">Spring Boot 整合 Quartz（转）</a></li>
+<li><a href="https://mp.weixin.qq.com/s/zJSPzcsFl72JNoqZpkH94A" target="_blank" rel="noopener">SpringBoot 整合 Quartz 实现分布式调度（转）</a></li>
+<li><a href="https://mp.weixin.qq.com/s/6skQR5Nq-LZm0AeWc5-xqg" target="_blank" rel="noopener">干掉mapper.xml！MyBatis新特性动态SQL真香！（转）</a></li>
+<li><a href="https://mp.weixin.qq.com/s/msD98uP8_B_Mb7L-nKbg6w" target="_blank" rel="noopener">Mall电商实战项目专属学习路线（转）</a></li>
+<li><a href="http://www.heartthinkdo.com/?p=2945" target="_blank" rel="noopener">Logback实现不同任务输出到不同日志文件（转）</a></li>
+<li><a href="https://mp.weixin.qq.com/s/Am8NZShe6BCFaMt2yDz6uw" target="_blank" rel="noopener">一个轻量级流程编排框架（转）</a></li>
+<li><a href="https://mp.weixin.qq.com/s/JMcBd6OULcVd9aRKyEGc0w" target="_blank" rel="noopener">优化Spring Boot应用Docker镜像，提高CI/CD效率</a></li>
+<li><h1 id="Spring-Boot版本升级"><a href="#Spring-Boot版本升级" class="headerlink" title="Spring Boot版本升级"></a>Spring Boot版本升级</h1></li>
+<li><a href="https://mp.weixin.qq.com/s/9Psdk_cJHBWH4cuIm66BIw" target="_blank" rel="noopener">SpringBoot 2.3.0 新特性一览（转）</a></li>
+<li><a href="https://mp.weixin.qq.com/s/XdpwuLSpoVchGKd8AhTpXw" target="_blank" rel="noopener">Spring Boot 2.3.3 稳定版发布（转）</a></li>
+<li><a href="https://mp.weixin.qq.com/s/c2XRzUiblQQY6d_GGcIieg" target="_blank" rel="noopener">Spring Boot 2.4.0 发布，配置文件重大调整，不要乱升级！！（转）</a></li>
+</ul>
+<h1 id="Spring-Cloud"><a href="#Spring-Cloud" class="headerlink" title="Spring Cloud"></a>Spring Cloud</h1><ul>
+<li><a href="https://mp.weixin.qq.com/s/OgjAyezwwXIxngyI24R2bg" target="_blank" rel="noopener">3W字带你玩转SpringCloud！（转）</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Spring-Boot/" rel="tag"># Spring Boot</a>
+          
+            <a href="/tags/Spring/" rel="tag"># Spring</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/05/19/分布式好文/" rel="next" title="分布式好文">
+                <i class="fa fa-chevron-left"></i> 分布式好文
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/06/01/配好的Gmail发送邮件授权失败，怎么办/" rel="prev" title="配好的Gmail发送邮件认证失败，怎么办">
+                配好的Gmail发送邮件认证失败，怎么办 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript">
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/xhr.jpg" alt="chace">
+          <p class="site-author-name" itemprop="name">chace</p>
+           
+              <p class="site-description motion-element" itemprop="description">Good good study, day day up!</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/chace0120" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://my.oschina.net/angerbaby" target="_blank" title="OSChina">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  OSChina
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring"><span class="nav-text">Spring</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-Boot"><span class="nav-text">Spring Boot</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-Boot版本升级"><span class="nav-text">Spring Boot版本升级</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-Cloud"><span class="nav-text">Spring Cloud</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">chace</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://chace0120.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://chace0120.github.io/2020/05/19/Spring-Spring-Boot好文/';
+          this.page.identifier = '2020/05/19/Spring-Spring-Boot好文/';
+          this.page.title = 'Spring-Spring-Boot好文';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://chace0120.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
